@@ -10,3 +10,5 @@ Here're some of the project's best features:
 
 *   Clear and beautiful way to display your server console
 *   Designed using Tailwind for a sleek appearance of your server console.
+
+Inspired by [Valkam08's Pterodactyl-WebSocket.md](https://gist.github.com/valkam08/a1354988d75c92e587ded03f374a1552)
