@@ -139,7 +139,7 @@ const prod = () => {
               io.on('connection', (socket) => {
                 socket.on('command', (command) => {
                   recieveCommand = command.trim();
-                  customLog('<span class="text-sky-400 font-bold"">~ </span>' + command);
+                  customLog('<span class="text-sky-400 font-bold"">~ </span>' + recieveCommand);
                   
                   connection.sendUTF(`{"event":"send command","args":["${recieveCommand}"]}`)
                 });
