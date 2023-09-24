@@ -19,7 +19,10 @@ function customLog(message) {
 
   // Send formatted message to client
   if (cleanMessage.includes('WARN')) {
-    io.emit('consoleLog', `<p class="text-amber-500 font-bold">⚠️ ` + cleanMessage + `</p>`);
+    io.emit('consoleLog', `<p class="text-amber-500 bg-amber-500/20 hover:bg-amber-500/30 font-bold">⚠️ ` + cleanMessage + `</p>`);
+    return
+  } else if (cleanMessage.includes('ERROR')) { 
+    io.emit('consoleLog', `<p class="text-red-500 bg-red-500/20 hover:bg-red-500/30 font-bold">❌ ` + cleanMessage + `</p>`);
     return
   } else if (cleanMessage.includes('container@pterodactyl~')) {
     io.emit('consoleLog', `<span>` + cleanMessage.replace('container@pterodactyl~', "<span class='text-sky-400 font-bold'>container@pterodactyl ~ </span>") + `</span>`);
@@ -28,9 +31,17 @@ function customLog(message) {
     io.emit('consoleLog', `<p class="text-amber-500 font-bold">` + cleanMessage + `</p>`)
   } else {
     // Send message without special formatting
-    io.emit('consoleLog', `<p>` + cleanMessage + `</p>`);
+    io.emit('consoleLog', `<p class="hover:bg-slate-700">` + cleanMessage + `</p>`);
     return
   }
+}
+
+function escapeHtml(unsafe) {
+  return String(unsafe).replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 app.get('/', (req, res) => {
@@ -38,11 +49,12 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
-// Pterodactyl config
+// Config
 const config = {
     "panelUrl": "https://***",
     "pterodactylUserApiKey": "***",
-    "serverUUID": "***"
+    "serverUUID": "***",
+    "port": "3000"
 };
 
 // ReadLine for the commands
@@ -61,8 +73,8 @@ io.on('connection', (socket) => {
   });
 });
 
-http.listen(3000, () => {
-  console.log('Express is running on http://localhost:3000');
+http.listen(config.port, () => {
+  console.log(`Express is running on http://localhost:` + config.port);
 });
 
 // Init 
@@ -138,7 +150,8 @@ const prod = () => {
 
               io.on('connection', (socket) => {
                 socket.on('command', (command) => {
-                  recieveCommand = command.trim();
+                  const escapedCommand = escapeHtml(command.trim())
+                  recieveCommand = escapedCommand
                   customLog('<span class="text-sky-400 font-bold"">~ </span>' + recieveCommand);
                   
                   connection.sendUTF(`{"event":"send command","args":["${recieveCommand}"]}`)
